@@ -6,6 +6,33 @@ type Props = {
   params: Promise<{ slug?: string[] }>;
 };
 
+export async function generateMetadata({ params }: Props) {
+  const { slug } = await params;
+  const tagCandidate = slug?.[0];
+
+  const isValidTag =
+    tagCandidate && tagCandidate !== "All" && tagCandidate !== "notes";
+  const tag = isValidTag ? tagCandidate : "All";
+
+  return {
+    title: `${tag} Notes`,
+    description: `Manage your ${tag} notes`,
+    openGraph: {
+      title: `${tag} Notes`,
+      description: `Browse ${tag} notes. Stay organized and access them when needed.`,
+      url: "https://07-routing-nextjs-jag7.vercel.app/not", // change url later
+      images: [
+        {
+          url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg",
+          width: 1200,
+          height: 630,
+          alt: "Note Hub",
+        },
+      ],
+    },
+  };
+}
+
 export default async function NotesPage({ params }: Props) {
   const { slug } = await params;
   const tagCandidate = slug?.[0];

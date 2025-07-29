@@ -1,4 +1,23 @@
 import css from "./Home.module.css";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Page was not found",
+  description: "Sorry, the page you are looking for does not exist.",
+  openGraph: {
+    title: "Page was not found",
+    description: "Sorry, the page you are looking for does not exist.",
+    url: "https://07-routing-nextjs-jag7.vercel.app/not", // change url later
+    images: [
+      {
+        url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Note Hub",
+      },
+    ],
+  },
+};
 
 export default function NotFound() {
   return (
