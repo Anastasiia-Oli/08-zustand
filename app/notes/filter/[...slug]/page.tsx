@@ -41,6 +41,7 @@ export default async function NotesPage({ params }: Props) {
     tagCandidate && tagCandidate !== "All" && tagCandidate !== "notes";
   const tag = isValidTag ? (tagCandidate as NoteTag) : undefined;
 
+  console.log(tag);
   const initialData = await fetchNotes("", 1, tag);
   return <Notes tag={tag} initialData={initialData} />;
 }
