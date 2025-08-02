@@ -7,6 +7,7 @@ import css from "./NoteForm.module.css";
 import { createNote } from "@/lib/api";
 import type { NoteTag } from "../../types/note";
 import { useRouter } from "next/navigation";
+import { useNoteDraftStore } from "@/lib/stores/noteStore";
 
 const tagOptions: NoteTag[] = [
   "Todo",
@@ -26,15 +27,26 @@ function NoteForm() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [tag, setTag] = useState<NoteTag | "">("");
+  const { draft, setDraft, clearDraft } = useNoteDraftStore();
+
+  const handleChange = (
+    event: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    setDraft({
+      ...draft,
+      [event.target.name]: event.target.value,
+    });
+  };
+
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const { mutate, isPending } = useMutation({
     mutationFn: createNote,
     onSuccess: () => {
       toast.success("Note created successfully");
+      clearDraft();
       queryClient.invalidateQueries({ queryKey: ["notes"] });
       router.push("/notes/filter/All");
     },
@@ -45,16 +57,16 @@ function NoteForm() {
 
   const validate = () => {
     const newErrors: typeof errors = {};
-    if (title.trim().length < 3) {
+    if (draft.title.trim().length < 3) {
       newErrors.title = "Minimum 3 characters";
     }
-    if (title.length > 50) {
+    if (draft.title.length > 50) {
       newErrors.title = "Maximum 50 characters";
     }
-    if (content.length > 500) {
+    if (draft.content.length > 500) {
       newErrors.content = "Maximum 500 characters";
     }
-    if (!tagOptions.includes(tag as NoteTag)) {
+    if (!tagOptions.includes(draft.tag as NoteTag)) {
       newErrors.tag = "Tag is required";
     }
     setErrors(newErrors);
@@ -66,10 +78,13 @@ function NoteForm() {
   const handleSubmit = (formData: FormData) => {
     const values = Object.fromEntries(formData) as NewNoteData;
     if (!validate()) return;
-    mutate(values);
-    setTitle("");
-    setContent("");
-    setTag("");
+
+    const cleanedValues = {
+      ...values,
+      tag: values.tag as NoteTag,
+    };
+
+    mutate(cleanedValues);
   };
 
   return (
@@ -81,9 +96,9 @@ function NoteForm() {
           id="title"
           name="title"
           type="text"
-          value={title}
+          defaultValue={draft?.title}
           className={css.input}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={handleChange}
         />
         {errors.title && <span className={css.error}>{errors.title}</span>}
       </div>
@@ -95,9 +110,9 @@ function NoteForm() {
           id="content"
           name="content"
           rows={8}
-          value={content}
+          defaultValue={draft?.content}
           className={css.textarea}
-          onChange={(e) => setContent(e.target.value)}
+          onChange={handleChange}
         />
         {errors.content && <span className={css.error}>{errors.content}</span>}
       </div>
@@ -109,8 +124,8 @@ function NoteForm() {
           id="tag"
           name="tag"
           className={css.select}
-          value={tag}
-          onChange={(e) => setTag(e.target.value as NoteTag)}
+          defaultValue={draft?.tag}
+          onChange={handleChange}
         >
           <option value="">Select tag</option>
           {tagOptions.map((tagOption) => (
