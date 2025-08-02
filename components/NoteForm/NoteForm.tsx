@@ -7,7 +7,7 @@ import css from "./NoteForm.module.css";
 import { createNote } from "@/lib/api";
 import type { NoteTag } from "../../types/note";
 import { useRouter } from "next/navigation";
-import { useNoteDraftStore } from "@/lib/stores/noteStore";
+import { useNoteDraftStore } from "@/lib/store/noteStore";
 
 const tagOptions: NoteTag[] = [
   "Todo",
